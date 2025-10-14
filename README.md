@@ -1,7 +1,7 @@
 <div align="center">
   <h1>🚗 GTA San Andreas Universe</h1>
   <p>Explore. Drive. Survive. — A cinematic web experience inspired by the legendary game.</p>
-  <a href="https://yourusername.github.io/gta-sanandreas/">
+  <a href="https://hamiparsa.github.io/Gta-SanAndreas/">
     <img src="https://img.shields.io/badge/View_Live_Project-000?style=for-the-badge&logo=github&logoColor=white"/>
   </a>
 </div>
