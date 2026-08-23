@@ -24,7 +24,6 @@ import {
   FiShield,
   FiUserCheck
 } from "react-icons/fi";
-import { TypeAnimation } from 'react-type-animation';
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 // ============================================================
@@ -56,7 +55,69 @@ const useIntersectionObserver = (
 };
 
 // ============================================================
-// SECTION 3: MAIN COMPONENT
+// SECTION 3: CUSTOM COMPONENT - Typewriter
+// Replaces react-type-animation with a custom implementation
+// ============================================================
+const Typewriter = ({ 
+  texts, 
+  speed = 50, 
+  delay = 2000,
+  className = ""
+}: { 
+  texts: string[], 
+  speed?: number, 
+  delay?: number,
+  className?: string
+}) => {
+  const [currentText, setCurrentText] = useState('');
+  const [index, setIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const fullText = texts[index];
+      
+      if (!isDeleting && !isPaused) {
+        // Typing forward
+        if (charIndex < fullText.length) {
+          setCurrentText(fullText.substring(0, charIndex + 1));
+          setCharIndex(charIndex + 1);
+        } else {
+          // Done typing - pause then delete
+          setIsPaused(true);
+          setTimeout(() => {
+            setIsPaused(false);
+            setIsDeleting(true);
+          }, delay);
+        }
+      } else if (isDeleting && !isPaused) {
+        // Deleting backward
+        if (charIndex > 0) {
+          setCurrentText(fullText.substring(0, charIndex - 1));
+          setCharIndex(charIndex - 1);
+        } else {
+          // Done deleting - move to next text
+          setIsDeleting(false);
+          setIndex((prev) => (prev + 1) % texts.length);
+        }
+      }
+    }, isDeleting ? speed / 2 : speed);
+
+    return () => clearTimeout(timer);
+  }, [charIndex, isDeleting, isPaused, texts, index, speed, delay]);
+
+  return (
+    <span className={className}>
+      {currentText}
+      <span className="animate-pulse border-r-2 border-[#1a1a1a]/30 ml-0.5">|</span>
+    </span>
+  );
+};
+
+// ============================================================
+// SECTION 4: MAIN COMPONENT
 // Homepage featuring Los Santos content with industrial theme
 // ============================================================
 export default function Home() {
@@ -331,27 +392,22 @@ export default function Home() {
                 </h1>
               </motion.div>
 
-              {/* Typewriter Subtitle - Animated text loop */}
+              {/* Typewriter Subtitle - Custom implementation */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
                 className="text-xl md:text-2xl text-[#1a1a1a]/60 font-light leading-relaxed h-14"
               >
-                <TypeAnimation
-                  sequence={[
+                <Typewriter
+                  texts={[
                     'Power. Money. Respect.',
-                    2000,
                     'Grove Street 4 Life.',
-                    2000,
                     'The streets are calling.',
-                    2000,
-                    'Welcome to the city that never sleeps.',
-                    2000,
+                    'Welcome to the city that never sleeps.'
                   ]}
-                  wrapper="span"
                   speed={50}
-                  repeat={Infinity}
+                  delay={2000}
                   className="border-r-2 border-[#1a1a1a]/30 pr-3"
                 />
               </motion.div>
@@ -606,7 +662,7 @@ export default function Home() {
                       src={char.image}
                       alt={char.name}
                       fill
-                      className="object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-500"
+                      className="object-cover opacity-70 group-hover:opacity-100 transition-all duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a]/90 via-[#1a1a1a]/30 to-transparent" />
                     
